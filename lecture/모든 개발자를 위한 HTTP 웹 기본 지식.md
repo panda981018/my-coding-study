@@ -32,10 +32,11 @@ IP 패킷 정보
 ---
 ### TCP, UDP
 #### 인터넷 프로토콜의 4계층
-![internet protocol 4layers](./img/internet%20protocol%204%20layers.png)
+<img alt="internet protocol 4layers" src="./img/internet%20protocol%204%20layers.png" style="width:70%;height=100%">
 
-프로토콜 계층
-![프로토콜 계층](./img/protocol%20layer.png)
+#### 프로토콜 계층
+
+<img alt="프로토콜 계층" src="./img/protocol%20layer.png" style="width:70%;height=100%">
 
     1. 애플리케이션의 'Socket Library'가 전송할 데이터를 OS단의 TCP(전송 계층)로 전달.
     2. 데이터를 TCP 정보가 포함된 포장지(?)로 감싼 뒤에 IP계층(인터넷 계층)로 전달.
@@ -55,17 +56,45 @@ TCP segment = 출발지 Port + 도착지 Port + 전송제어 + 전송순서 + �
 - 현재는 대부분의 애플리케이션에서 TCP를 사용함.
 
 **[3 Way Handshake]**
-![3 way handshake](./img/3way%20handshake.png)
+
+<img alt="3 way handshake" src="./img/3way%20handshake.png" style="width:70%;height=100%">
+
 `SYN = Synchronize / ACK = Acknowledge`
 
 **[데이터 전달 보증]**
-![데이터 전달 보증](./img/데이터전달보증.png)
+
+<img alt="데이터 전달 보증" src="./img/데이터전달보증.png" style="width:70%;height=100%">
+
 
 **[순서 보장]**
-![순서보장](./img/순서보장.png)
+
+<img alt="순서보장" src="./img/순서보장.png" style="width:70%;height=100%">
 
 #### UDP(User Datagram Protocol) 특징
 - 기능이 거의 없음.
 - IP와 거의 똑같음. 대신 `PORT와 체크썸` 정도만 추가.
 - 데이터 전달 및 순서가 보장되지는 않지만 `단순하고 빠름.`
+
+---
+### Port
+
+    IP = 목적지를 찾는 것.
+    Port = 목적지 내의 특정 애플리케이션을 찾는 것.
+
+#### Port 특징
+- 0~65535 까지 할당 가능.
+- 0~1023 : 잘 알려진 포트. `사용하지 않는 것이 좋음.`
+    - FTP : 20, 21
+    - TELNET : 23
+    - HTTP : 80
+    - HTTPS : 443
+
+---
+### DNS
+
+#### DNS(Domain Name System) 특징
+- IP는 기억하기 어려움.
+- 도메인명 / IP주소 Pair.
+
+
 
