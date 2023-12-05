@@ -165,9 +165,24 @@ public static List<Apple> filterApples(List<Apple> inventory, ApplePredicate p) 
 
 ### 2.3. 복잡한 과정 간소화
 
+ 지금까지 작성한 코드는 `ApplePredicate`를 만들고 여러 구현 클래스를 정의한 뒤 인스턴스화 해야함.
+=> 클래스의 선언 + 인스턴스화 = `익명클래스(Anonymous Class)` 탄생
+
 #### 2.3.1. 익명 클래스
 
+익명 클래스 ≒ 자바의 지역 클래스
+
 #### 2.3.2. 5트 : 익명 클래스 사용
+
+아래 예제는 익명 클래스를 이용해서 `ApplePredicate`를 구현하는 객체를 만드는 방법으로 필터링 예제를 다시 구현한 코드.
+
+```java
+List<Apple> redApples = filterApples(inventory, new ApplePredicate() {
+    public boolean test(Apple apple) {
+        return RED.equals(apple.getColor());
+    }
+});
+```
 
 #### 2.3.3. 6트 : 람다 표현식 사용
 
