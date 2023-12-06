@@ -616,7 +616,7 @@ API 설계
 - 회원 삭제 /members/{id}/delete -> POST
 ```
 
-#### 정리 [>> 참고링크](https://restfulapi.net/resource-naming)
+#### 정리 <a href="https://restfulapi.net/resource-naming" target="_blank"> >> 참고링크</a>
 - HTTP API - 컬렉션
     - POST 기반 등록
     - **서버가 리소스 URI 결정**
