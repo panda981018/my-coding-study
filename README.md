@@ -18,3 +18,4 @@
 - [Section 4. HTTP 메서드](https://github.com/panda981018/my-coding-study/blob/master/lecture/%EB%AA%A8%EB%93%A0%20%EA%B0%9C%EB%B0%9C%EC%9E%90%EB%A5%BC%20%EC%9C%84%ED%95%9C%20HTTP%20%EC%9B%B9%20%EA%B8%B0%EB%B3%B8%20%EC%A7%80%EC%8B%9D.md#section-4-http-%EB%A9%94%EC%84%9C%EB%93%9C)
 - [Section 5. HTTP 메서드 활용](https://github.com/panda981018/my-coding-study/blob/master/lecture/%EB%AA%A8%EB%93%A0%20%EA%B0%9C%EB%B0%9C%EC%9E%90%EB%A5%BC%20%EC%9C%84%ED%95%9C%20HTTP%20%EC%9B%B9%20%EA%B8%B0%EB%B3%B8%20%EC%A7%80%EC%8B%9D.md#section-5-http-%EB%A9%94%EC%84%9C%EB%93%9C-%ED%99%9C%EC%9A%A9)
 - [Section 6. HTTP 상태코드](https://github.com/panda981018/my-coding-study/blob/master/lecture/%EB%AA%A8%EB%93%A0%20%EA%B0%9C%EB%B0%9C%EC%9E%90%EB%A5%BC%20%EC%9C%84%ED%95%9C%20HTTP%20%EC%9B%B9%20%EA%B8%B0%EB%B3%B8%20%EC%A7%80%EC%8B%9D.md#section-6-http-%EC%83%81%ED%83%9C%EC%BD%94%EB%93%9C)
+- [Section 7. HTTP 헤더1 - 일반 헤더]()
