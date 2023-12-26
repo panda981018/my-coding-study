@@ -36,5 +36,5 @@
 
 ---
 
-### 스프링 MVC 1편 - 백엔드 웹 개발 핵심 기술
+#### 스프링 MVC 1편 - 백엔드 웹 개발 핵심 기술
 - [Section 1. 웹 애플리케이션 이해](https://github.com/panda981018/my-coding-study/blob/lecture/spring-mvc-1/lecture/%EC%8A%A4%ED%94%84%EB%A7%81MVC%201%ED%8E%B8_%EB%B0%B1%EC%97%94%EB%93%9C_%EC%9B%B9_%EA%B0%9C%EB%B0%9C_%ED%95%B5%EC%8B%AC_%EA%B8%B0%EC%88%A0/%EC%8A%A4%ED%94%84%EB%A7%81MVC1%ED%8E%B8_%EB%B0%B1%EC%97%94%EB%93%9C%EC%9B%B9%EA%B0%9C%EB%B0%9C%ED%95%B5%EC%8B%AC%EA%B8%B0%EC%88%A0.md#section-1-%EC%9B%B9-%EC%95%A0%ED%94%8C%EB%A6%AC%EC%BC%80%EC%9D%B4%EC%85%98-%EC%9D%B4%ED%95%B4)
