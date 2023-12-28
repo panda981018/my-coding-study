@@ -180,3 +180,136 @@ HTML을 편리하게 생성하는 뷰 기능
     - 스프링 MVC와 강력한 기능 통합
     - **최선의 선택**, 단 성능은 프리마커, 벨로시티가 더 빠름
 
+## Section 2. 서블릿
+### 프로젝트 생성
+
+war를 선택해야 JSP를 사용할 수 있음.
+war는 보통 톰캣 서버를 따로 설치할 때 사용.
+
+---
+
+### Hello 서블릿
+
+> 참고 : 서블릿은 '톰캣 같은 WAS를 직접 설치 -> 그 위에 서블릿 코드를 .class로 빌드한 것을 올린다 -> 톰캣 서버를 실행한다' 이 과정을 해야하지만 너무 번거롭기 때문에 스프링 부트 위에 서블릿 코드를 실행할 것이다.
+
+`@WebServlet` 서블릿 애노테이션
+    - name : 서블릿 이름 **(중복 X)**
+    - urlPatterns : URL 매핑 **(중복 X)**
+
+---
+
+### HttpServletRequest - 개요
+#### HttpServletRequest의 역할
+서블릿은 개발자가 HTTP 요청 메시지들을 편리하게 사용할 수 있도록 개발자 대신에 HTTP 요청 메시지를 파싱하고 그 결과를 `HttpServletRequest` 객체에 담아서 제공한다.
+
+#### 추가 기능
+- 임시 저장소 기능 : HTTP 요청의 시작부터 끝까지 유지되는 임시 저장소 기능
+    - 저장 : `request.setAttribute(name, value)`
+    - 조회 : `request.getAttribute(name)`
+
+#### 세션 관리 기능
+- `request.getSession(create: true)`
+
+---
+### HTTP 요청 데이터 - 개요
+클라이언트에서 서버로 데이터를 전달하는 방법
+
+1. GET - 쿼리 파라미터
+- message body 없이 URL의 쿼리 파라미터에 데이터를 포함해서 전달
+- 예) 검색, 필터, 페이징 등에서 많이 사용하는 방식
+
+2. POST - HTML Form
+- content-type: application/x-www-form-urlencoded
+- message body에 쿼리 파라미터 형식으로 전달
+- 예) 회원 가입, 상품 주문, HTML Form 사용
+
+**❗ HTML Form 데이터를 전송할 때 PUT or PATCH 메서드를 사용해서는 안된다. POST만 가능 ❗**
+
+3. HTTP message body에 데이터를 직접 담아서 요청
+- HTTP API에서 주로 사용. (JSON, XML, TEXT)
+- 데이터 형식은 주로 JSON 사용 (POST, PUT, PATCH)
+
+---
+### HTTP 요청 데이터 - GET 쿼리 파라미터
+
+message body 없이, URL의 쿼리 파라미터를 사용해서 데이터를 전달하자.
+
+URL 뒤에 `?`를 붙이면 쿼리파라미터 시작, `&`를 붙이면 추가 파라미터 작성
+
+`request.getParameter()` : 하나의 파라미터 이름에 대해서 하나의 값만 있을 때 사용.
+
+`request.getParameterValues()` : 하나의 파라미터 이름에 대한 2개 이상의 값이 있을 때 사용.
+
+---
+### HTTP 요청 데이터 - POST HTML Form
+
+**특징**
+- content-type: `application/x-www-form-urlencoded`
+- message body에 쿼리 파라미터 형식으로 데이터를 전달한다.
+
+`application/x-www-form-urlencoded` 형식은 앞서 GET에서 살펴본 쿼리 파라미터 형식과 같다. 따라서 **쿼리 파라미터 조회 메서드를 그대로 사용**하면 된다.
+
+> 참고 : content-type은 HTTP 메시지 바디의 데이터 형식을 지정한다.
+**GET URL 쿼리 파라미터 형식**으로 클라이언트에서 서버로 데이터를 전달할 때는 HTTP 메시지 바디를 사용하지 않기 때문에 content-type이 없다.
+**POST HTML Form 형식**으로 데이터를 전달하면 HTTP 메시지 바디에 해당 데이터를 포함해서 보내기 때문에 바디에 포함된 데이터가 어떤 형식인지 content-type을 꼭!! 지정해야 한다.
+
+---
+### HTTP 요청 데이터 - API 메시지 바디 - 단순 텍스트
+
+HTTP message body에 데이터를 직접 담아서 요청
+- HTTP API에서 주로 사용, JSON, XML, TEXT(POST, PUT, PATCH 메서드에서 사용)
+- 데이터 형식 대부분 JSON
+- HTTP 메시지 바디의 데이터를 InputStream을 사용해서 직접 읽을 수 있다.
+
+> 참고 : InputStream은 byte코드를 리턴한다. 따라서 우리가 보기 쉬울려면 인코딩
+---
+### HTTP 요청 데이터 - API 메시지 바디 - JSON
+
+#### JSON 형식 전송
+- content-type: application/json
+- message body : {"username" : "hello", "age" : 20}
+
+---
+### HttpServletResponse - 기본 사용법
+
+#### [역할]
+
+**HTTP 응답 메시지 생성**
+- HTTP 응답코드 지정
+- 헤더 생성
+- 바디 생성
+
+**편의기능 제공**
+- Content-Type, 쿠키, Redirect
+
+---
+### HTTP 응답 데이터 - 단순 텍스트, HTML
+
+- 단순 텍스트 응답
+- HTML 응답
+- HTTP API - MessageBody JSON 응답
+
+```java
+@WebServlet(name = "responseHtmlServlet", urlPatterns = "/response-html")
+public class ResponseHtmlServlet extends HttpServlet {
+
+    @Override
+    protected void service(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        // Content-Type : text/html;charset=utf-8;
+        response.setContentType("text/html");
+        response.setCharacterEncoding("utf-8");
+
+        PrintWriter writer = response.getWriter();
+        writer.println("<html>");
+        writer.println("<body>");
+        writer.println("    <div>안녕?</div>");
+        writer.println("</body>");
+        writer.println("</html>");
+    }
+}
+```
+
+---
+### HTTP 응답 데이터 - API JSON
+
+> 참고 : `application/json`은 스펙상 utf-8 형식을 사용하도록 정의되어 있다. 그래서 charset=utf-8 같은 파라미터를 추가해주지 않아도 된다.(지원하지도 않음)
