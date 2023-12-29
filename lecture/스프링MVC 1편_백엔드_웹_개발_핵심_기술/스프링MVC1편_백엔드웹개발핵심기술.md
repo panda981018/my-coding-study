@@ -314,3 +314,114 @@ public class ResponseHtmlServlet extends HttpServlet {
 ### HTTP 응답 데이터 - API JSON
 
 > 참고 : `application/json`은 스펙상 utf-8 형식을 사용하도록 정의되어 있다. 그래서 charset=utf-8 같은 파라미터를 추가해주지 않아도 된다.(지원하지도 않음)
+
+## Section 3. 서블릿, JSP, MVC 패턴
+### 회원 관리 웹 애플리케이션 요구사항
+**회원 정보**
+
+이름: `username`
+
+나이: `age`
+
+**기능 요구사항**
+- 회원 저장
+- 회원 목록 조회
+
+
+---
+### 서블릿으로 회원 관리 웹 애플리케이션 만들기
+(servlet으로 만든 예제 코드는 [여기](https://github.com/panda981018/my-coding-study/tree/lecture/spring-mvc-1/lecture/%EC%8A%A4%ED%94%84%EB%A7%81MVC%201%ED%8E%B8_%EB%B0%B1%EC%97%94%EB%93%9C_%EC%9B%B9_%EA%B0%9C%EB%B0%9C_%ED%95%B5%EC%8B%AC_%EA%B8%B0%EC%88%A0/project/servlet/src/main/java/hello/servlet/basic)에 있습니다!)
+
+#### 서블릿으로만 구현하면서 겪은 불편함
+서블릿과 자바 코드만으로 HTML을 만들어보니, 동적으로 HTML파일을 생성할 수 있었으나 **매우 복잡하고 비효율적**이다.
+차라리 HTML에서 동적인 부분만 자바 코드로 변경한다면 조금 더 편할 것이다.
+
+이러한 이유로 `템플릿 엔진이 등장한 것이다.` 템플릿 엔진을 사용하면 HTML 문서에서 필요한 부분에만 코드를 적용해서 동적으로 변경할 수 있다.
+
+템플릿 엔진의 예시) JSP, Thymeleaf, Freemarker, Velocity 등
+
+> 참고 : JSP는 성능, 기능면에서 다른 템플릿엔진에 밀리는 상황이라 권장하지 않는 중이다.
+
+---
+### JSP로 회원 관리 웹 애플리케이션 만들기
+
+**스프링부트 3.0 미만**
+```gradle
+implementation 'org.apache.tomcat.embed:tomcat-embed-jasper'
+implementation 'javax.servlet:jstl'
+```
+
+**스프링부트 3.0 이상**
+```gradle
+implementation 'org.apache.tomcat.embed:tomcat-embed-jasper'
+implementation 'jakarta.servlet:jakarta.servlet-api'
+implementation 'jakarta.servlet.jsp.jstl:jakarta.servlet.jsp.jstl-api'
+implementation 'org.glassfish.web:jakarta.servlet.jsp.jstl'
+```
+#### JSP 문법
+- `<%@ page import="" %>` : 자바의 import문과 같음
+- `<% ~~ %>` : 내부에 자바 코드를 입력할 수 있다.
+- `<%= ~~ %>` : 자바 코드를 출력할 수 있다.
+
+#### 서블릿과 JSP의 한계
+서블릿으로 개발할 때는 뷰 화면을 위한 HTML을 만드는 작업이 자바 코드에 섞여서 지저분하고 복잡했다.
+그리고 JSP로 개발할 때는 HTML 작업은 깔끔해졌으나, 중간에 자바 코드가 들어가면서 JSP가 너무 많은 역할을 한다.
+
+#### MVC 패턴의 등장
+서블릿은 비즈니스 로직을 수행하는데에 특화되게, JSP는 뷰 화면만 그리도록 변경해보자.
+
+이때 등장한 것이 `MVC 패턴!!`
+
+---
+### MVC 패턴 - 개요
+#### 너무 많은 역할
+하나의 서블릿이나 JSP만으로 비즈니스 로직과 뷰까지 모두 처리하면 유지보수가 어려워진다!!
+
+#### 변경의 라이프 사이클
+UI수정과 비즈니스 로직 수정의 라이프 사이클은 다르다.
+
+라이프 사이클이 다른 부분을 하나의 코드로 관리하는 것은 유지보수하기 좋지 않다.
+
+#### 기능 특화
+특히 JSP 같은 뷰 템플릿은 화면ㅇ르 렌더링 하는데 최적화 되어 있기 때문에 이 부분의 업무만 담당하는 것이 가장 효율적이다.
+
+#### MVC(Model View Controller)
+서블릿이나 JSP 하나에서만 하던 일을 `모델과 뷰` 두 가지로 나눈 것을 MVC 패턴이라고 한다.
+
+**Controller** : HTTP 요청을 받아서 파라미터를 검증하고, 비즈니스 로직을 실행.
+뷰에 전달할 데이터를 조회하여 모델에 담는다.
+**Model** : 뷰에 출력할 데이터를 담고 있는 곳.
+**View** : 모델에 담겨있는 데이터를 사용해서 화면을 그리는 일에 집중한다.
+
+    컨트롤러에 비즈니스 로직을 두면 컨트롤러에서 너무 많은 일을 처리하게 된다.
+    그래서 일반적으로는 서비스 계층을 하나 더 두어 여기서 비즈니스 로직이 실행되게 하고, 컨트롤러는 앞단에서 파라미터 검증을 수행하고 서비스 계층을 호출한다.
+
+
+---
+### MVC 패턴 - 적용
+- 서블릿 : 컨트롤러(Controller)
+- JSP : 뷰(View)
+- HttpServletRequest : 모델(Model)
+    - request는 내부에 데이터 저장소를 갖고 있기 때문에 `request.setAttribute() / request.getAttribute()`를 통해 데이터를 보관/조회 할 수 있다.
+
+`RequestDispatcher.forward()` : 다른 서블릿이나 JSP로 이동할 수 있는 기능. 서버 내부에서 다시 호출이 발생한다.
+
+    WEB-INF : 이 경로 안에 JSP가 있으면 외부에서 직접 JSP를 호출할 수 없다.
+
+<br>
+
+    redirect VS forward
+    - redirect : 실제 클라이언트에 응답이 나갔다가 클라이언트가 redirect 경로로 다시 요청
+    - forward : 서버 내부에서 일어나는 호출이기 때문에 클라이언트가 전혀 인지하지 못한다.
+
+#### form에서 절대경로, 상대경로
+
+form에서 상대경로를 사용하면 폼 전송시 현재 URL이 속한 계층 경로 + save가 호출된다.
+
+현재 계층 경로 : `/servlet-mvc/members/`
+
+결과 : `/servlet-mvc/members/save`
+
+---
+### MVC 패턴 - 한계
+
