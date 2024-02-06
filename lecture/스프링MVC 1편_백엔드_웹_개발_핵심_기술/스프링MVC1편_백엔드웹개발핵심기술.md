@@ -777,3 +777,65 @@ GET 쿼리 파라미터, POST Form 방식을 모두 지원함.
     3단계 : @GetMapping("/new-form")
 
 Get, Post 뿐만 아니라 Delete, Put, Patch 모두 애노테이션이 있다.
+
+## Section 6. 스프링 MVC - 기본 기능
+
+### 로깅 간단히 알아보기
+
+운영에서는 `System.out.println()` 같은 시스템 콘솔은 사용하지 않는다.
+
+별도의 로깅 라이브러리를 추가해서 로그를 찍는다.
+
+#### 로깅 라이브러리
+
+스프링 부트 라이브러리를 사용하면 스프링 부트 로깅 라이브러리 `spring-boot-starter-loggin`가 함께 포함된다.
+
+- SLF4J(인터페이스) : http://www.slf4j.org
+- Logback(구현체) : http://logback.qos.ch
+
+#### 로그 선언
+`private Logger log = LoggerFactory.getLogger(A.class);`
+`private static final Logger log = LoggerFactory.getLogger(A.class)`
+`@Slf4j` 롬복으로 선언하여 사용 가능
+
+#### 로그 호출
+`log.info("hello")`
+`System.out.println("hello")`
+
+#### 매핑 정보
+`@RestController`
+- `@Controller`는 반환 값이 String이면 뷰 이름으로 인식.
+- `@RestController`는 반환 값으로 뷰를 찾는 것이 아니라, HTTP 메시지 바디에 바로 입력. (@RestController = @ResponseBody + @Controller)
+
+#### 테스트
+- 로그가 출력되는 포맷 확인
+    - 시간, 로그 레벨, 프로세스ID(PID), 스레드 명, 클래스 명, 로그 메시지
+- 로그 레벨 설정을 변경해서 출력 결과를 보자.
+    - LEVEL : `TRACE < DEBUG < INFO < WARN < ERROR`
+    - 개발 서버는 `DEBUG`부터 출력
+    - 운영 서버는 `INFO`부터 출력
+- `@Slf4j`로 변경
+
+#### 로그 레벨 설정
+`application.properties`
+
+```properties
+# 전체 로그 레벨 설정 (기본 info)
+logging.level.root=info
+
+# hello.springmvc 패키지와 그 하위 로그 레벨 설정
+logging.level.hello.springmvc=debug
+```
+
+#### 올바른 로그 사용법
+`log.debug("data = {}", data)`
+- 로그 레벨 출력을 info로 설정하면 별다른 연산 작업이 발생하지 않는다. 따라서, 더하기 연산이 아니라 중괄호({ })를 사용하여 로그를 출력하자.
+
+#### 로그 사용시 장점
+- 스레드 정보, 클래스 이름 같은 부가 정보를 함께 볼 수 있고, 출력 모양을 조정할 수 있다.
+- 개발 서버에서는 `DEBUG`, 운영 서버에서는 `INFO` 이런 식으로 실행 환경에 따라서 로그 레벨을 조절할 수 있다.
+- 시스템 콘솔에만 출력하는 것이 아니라, **파일이나 네트워크 등 로그를 별도의 위치에 남길 수 있다.** 특히 파일로 남길 때는 일별, 특정 용량에 따라 로그를 분할할 수도 있다.
+- 성능도 일반 System.out보다 좋다.
+
+---
+### 요청 매핑
