@@ -839,3 +839,210 @@ logging.level.hello.springmvc=debug
 
 ---
 ### 요청 매핑
+- `@RestController`
+    - `@Controller`는 반환값이 String이면 뷰 이름으로 인식. **따라서 뷰를 찾고 렌더링 된다.**
+    - `@RestController`는 반환값을 HTTP Body에 바로 입력. (`@RestController = @ResponseBody + @Controller`)
+- `@RequestMapping("/hello-basic)`
+    - `/hello-basic` URL 호출이 오면 이 메소드가 실행되도록 매핑됨.
+    - 대부분의 속성은 배열([])로 제공되므로 다중 설정이 가능하다. (`{"/hello-basic", "/hello-go"}`)
+
+#### 스프링 3.0 이후 변화
+```text
+URL 예시 : /hello-basic, /hello-basic/
+
+스프링 3.0 이전 : 마지막 슬래시(/)를 제거했음.
+스프링 3.0 이후 : 마지막의 슬래시(/)를 유지한다.
+따라서 다음과 같이 매핑됨.
+매핑 : /hello-basic -> URL 요청 : /hello-basic
+매핑 : /hello-basic/ -> URL 요청 : /hello-basic/
+```
+
+#### HTTP 메서드
+
+`@RequestMapping`에 method 속성을 주지 않으면 모든 HTTP Method 요청에 대해서 열려있는 것이다.
+GET, HEAD, POST, PUT, PATCH, DELETE
+
+#### 특정 파라미터 조건 매핑
+```java
+/**
+ * 파라미터로 추가 매핑
+ * params="mode"
+ * params="!mode"
+ * params="mode=debug"
+ * params="mode!=debug"
+ * params={"mode=debug", "data=good"}
+ */
+ @GetMapping(value = "/mapping-param", params="mode=debug") 
+ public String mappingParam() {
+    log.info("mappingParam");
+    return "ok";
+ }
+```
+특정 파라미터가 있거나 없는 조건을 추가할 수 있다. (하지만 잘 사용하지는 않음.)
+
+#### 특정 헤더 조건 매핑
+```java
+/**
+ * 특정 헤더로 추가 매핑
+ * headers="mode"
+ * headers="!mode"
+ * headers="mode=debug"
+ * headers="mode!=debug"
+ */
+@GetMapping(value = "/mapping-header", headers = "mode=debug")
+public String mappingHeader() {
+    log.info("mappingHeader");
+    return "ok";
+}
+```
+
+특정 파라미터 조건 매핑과 비슷하지만 HTTP 헤더를 사용한다.
+
+#### 미디어타입 조건 매핑 - HTTP 요청 Content-Type, consume
+```java
+/**
+ * Content-Type 헤더 기반 매핑 Media Type
+ * consumes="application/json"
+ * consumes="!application/json"
+ * consumes="application/*"
+ * consumes="*\/*"
+ * MediaType.APPLICATION_JSON_VALUE
+ */
+@PostMapping(value = "/mapping-consume", consumes = "application/json")
+public String mappingConsumes() {
+    log.info("mappingConsumes");
+    return "ok";
+}
+```
+
+HTTP 요청의 헤더값에 Content-Type 헤더를 기반으로 미디어 타입으로 매핑한다.
+만약 헤더에 Content-Type을 세팅하지 않고 요청하면 `HTTP 415(Unsupported Media Type) 상태코드를 반환.`
+
+#### 미디어타입 조건 매핑 - HTTP 요청 Accept, produce
+```java
+/**
+ * Accept 헤더 기반 Media Type
+ * produces="text/html"
+ * produces="!text/html"
+ * produces="text/*"
+ * produces="*\/*"
+ */
+@PostMapping(value = "/mapping-produces", produces = "text/html")
+public String mappingProduces() {
+    log.info("mappingProduces");
+    return "ok";
+}
+```
+
+HTTP 요청의 Accept 헤더를 기반으로 미디어 타입을 매핑한다.
+만약 맞지 않으면 `HTTP 406(Not Acceptable) 상태코드를 반환한다.`
+
+---
+### HTTP 요청 파라미터 - @RequestParam
+
+    참고
+
+    애노테이션을 너무 생략하는 것도 과하다.
+    @RequestParam이 있으면 명확하게 요청 파라미터에서 데이터를 읽는다는 것을 알 수 있다.
+
+**주의! 스프링 부트 3.2 파라미터 이름 인식 문제**
+#### 발생 예외
+`java.lang.IllegalArgumentException: Name for argument of type [java.lang.String]
+not specified, and parameter name information not found in class file either.`
+
+스프링 부트 3.2에서
+- `@RequestParam("username")`에서 `("username")`을 생략하고 싶다
+- `@RequestParam`을 생략하고 싶다
+
+자바 컴파일러에 `-parameters 욥션`을 넣어줘야 애노테이션에 적는 이름을 생략할 수 있다.
+
+#### 파라미터 필수 여부 - requestParamRequired
+```java
+@ResponseBody
+@RequestMapping("/request-param-required")
+public String requestParamRequired(
+    @RequestParam(required = true) String username,
+    @RequestParam(required = false) int age) {
+    log.info("username={}, age={}", username, age);
+    return "ok";
+}
+```
+
+**주의! 파라미터 이름만 사용**
+
+`/request-param-required?username=`
+
+파라미터 이름만 있고 값이 없는 경우 -> **빈 문자로 통과됨**
+
+<br/>
+
+**주의! 기본형(primitive)에 null 입력**
+
+- `/request-param` 요청
+- `@RequestParam(required = false) int age`
+int 같은 기본형에 null은 입력할 수 없다.
+
+따라서 null을 입력받을 수 있게 하려면 `Integer`로 선언하거나 `defaultValue`를 사용하자.
+
+#### 기본 값 적용 - requestParamDefault
+```java
+@ResponseBody
+@RequestMapping("/request-param-default")
+public String requestParamDefault(
+    @RequestParam(required = true, defaultValue = "guest") String username,
+    @RequestParam(required = false, defaultValue = "-1") int age) {
+    log.info("username={}, age={}", username, age);
+    return "ok";
+}
+```
+
+`defaultValue`는 빈문자의 경우에도 기본값으로 설정되도록 만들어짐.
+따라서 `/request-param-default?username=` 통과
+
+#### 파라미터를 Map으로 조회하기 - requestParamMap
+```java
+@ResponseBody
+@RequestMapping("/request-param-map")
+public String requestParamMap(@RequestParam Map<String, Object> paramMap) {
+    log.info("username={}, age={}", paramMap.get("username"), paramMap.get("age"));
+    return "ok";
+}
+```
+
+파라미터를 Map, MultiValueMap으로 조회할 수 있다.
+- `@RequestParam Map`
+    - `Map(key=value)`
+- `@RequestParam MultiValueMap`
+    - `MultiValueMap(key=[value1, value2, ...])`
+
+---
+### HTTP 요청 파라미터 - @ModelAttribute
+
+Lombok `@Data`
+- `@Getter`, `@Setter`, `@ToString`, `@EqualsAndHashCode`, `@RequiredArgsConstructor`를 자동으로 적용해준다.
+
+```java
+@ResponseBody
+@RequestMapping("/mode-attribute-v1")
+public String modelAttributeV1(@ModelAttribute HelloData helloData) {
+    log.info("username={}, age={}", helloData.getUsername(), helloData.getAge());
+    return "ok";
+}
+```
+
+스프링MVC는 `@ModelAttribute`가 있으면 다음을 실행한다.
+- `HelloData` 객체를 생성
+- 요청 파라미터의 이름으로 `HelloData` 객체의 프로퍼티를 찾는다. 그리고 해당 프로퍼티의 setter를 호출해서 파라미터의 값을 입력한다.
+
+#### 프로퍼티
+
+객체에 `getUsername()`, `setUsername()` 메소드가 있으면 이 객체는 `username`이라는 프로퍼티를 가지고 있다.
+
+#### 바인딩 오류
+`age=abc` 처럼 숫자가 들어가야 할 곳에 문자를 넣으면 `BindException`이 발생한다. 이런 바인딩 오류 처리는 검증 부분에서 다룬다.
+
+#### `@ModelAttribute`는 생략 가능!
+
+그런데 `@RequestParam`도 생략할 수 있으니 혼란이 발생할 수 있다.
+
+
