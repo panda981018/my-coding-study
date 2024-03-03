@@ -1046,3 +1046,234 @@ public String modelAttributeV1(@ModelAttribute HelloData helloData) {
 그런데 `@RequestParam`도 생략할 수 있으니 혼란이 발생할 수 있다.
 
 
+---
+### HTTP 요청 메시지 - 단순 텍스트
+
+- **HTTP message body** 에 데이터를 직접 담아서 요청
+    - REST API에서 주로 사용 (JSON, XML, TEXT)
+    - 데이터 형식은 주로 `JSON`
+
+#### 스프링MVC에서 지원하는 파라미터
+- **HTTP Entity** : HTTP header, body를 간편하게 조회
+    - 메시지 바디 정보를 직접 조회
+- **HTTPEntity**는 응답에서도 사용 가능
+    - 메시지 바디 정보 직접 반환
+    - 헤더 정보 포함 가능
+
+`HttpEntity`를 상속받은 객체들도 있다.
+- **RequestEntity**
+    - HttpEntity + `HttpMethod, url 정보가 추가`
+- **ResponseEntity**
+    - HTTP 상태 코드 설정 가능.
+    - `return new ResponseEntity<>("Hello World!", responseHeaders, HttpStatus.OK);`
+
+#### @RequestBody
+클라이언트에서 넘어온 메시지 바디의 정보를 조회할 수 있다.
+
+`header`가 필요하다면 `@RequestHeader`를 사용하면 된다.
+
+
+#### 요청 파라미터 vs HTTP 메시지 바디
+- 요청 파라미터를 조회 : `@RequestParam`, `@ModelAttribute`
+- HTTP 메시지 바디를 조회하는 기능 : `@RequestBody`
+
+---
+### HTTP 요청 메시지 - JSON
+```java
+@ResponseBody
+@PostMapping("/request-body-json-v2")
+public String requestBodyJsonV2(@RequestBody String messageBody) {
+    HelloData data = objectMapper.readValue(messageBody, HelloData.class);
+    log.info("username = {}, age = {}", data.getUsername(), data.getAge());
+    return "ok";
+}
+```
+메시지 바디를 문자로 받고 `objectMapper`를 통해 자바 객체(여기서는 HelloData)로 변환하는 것이 불편하다.
+
+**@ModelAttribute처럼 한번애 객체로 변환할 수는 없을까?**
+
+#### @RequestBody 객체 변환
+```java
+@ResponseBody
+@PostMapping("/request-body-json-V3")
+public String requestBodyJsonV3(@RequestBody HelloData data) {
+    log.info("username = {}, age = {}", data.getUsername(), data.getAge());
+    return "ok";
+}
+```
+- **@RequestBody 객체 파라미터**
+    - `@RequestBody HelloData data`
+    - `@RequestBody`에 직접 만든 객체를 지정할 수 있다.
+
+파라미터에 `HttpEntity`, `@RequestBody`를 사용하면 HTTP 메시지 컨버터가 메시지 바디의 내용을 우리가 원하는 문자나 객체로 변환해준다.
+
+**@RequestBody는 생략 불가능**
+- 생략하면 `@ModelAttribute`가 적용됨.
+
+
+    ❗️참고❗️
+    HTTP 요청에 `Content-Type: application/json`인지 확인 해야 한다. 그렇지 않으면 JSON message converter가 적용되지 않는다.
+
+#### @ResponseBody
+응답의 경우 `@ResponseBody`를 사용하면 해당 객체를 HTTP 응답 메시지 바디에 직접 넣어줄 수 있다.
+- `@RequestBody` 요청
+    - JSON 요청 -> HTTP 메시지 컨버터 -> 객체
+- `@ResponseBody` 응답
+    - 객체 -> HTTP 메시지 컨버터 -> JSON 응답
+
+---
+### HTTP 응답 - 정적 리소스, 뷰 템플릿
+스프링에서 응답 데이터를 만드는 방법은 총 **3가지**이다.
+
+1. 정적 리소스
+    - 웹 브라우저에 정적인 HTML/CSS/JS를 제공할 때는 정적 리소스를 사용함.
+2. 뷰 템플릿 사용
+    - 웹 브라우저에 동적인 HTML을 제공할 때는 뷰 템플릿을 사용한다.
+3. HTTP 메시지 사용
+    - HTTP API를 제공하는 경우, 데이터를 전달해야 하므로, HTTP 메시지 바디에 `JSON` 형식으로 데이터를 담아 보낸다.
+
+#### 정적 리소스
+스프링 부트는 클래스패스의 다음 디렉토리에 있는 정적 리소스를 제공한다.
+`/static`, `/public`, `/resources`, `/META-INF/resources`
+
+<br/>
+
+**정적 리소스의 경로**
+
+`/src/main/resources/static`
+
+#### 뷰 템플릿
+HTML을 동적으로 생성할 때 주로 사용한다.
+
+<br/>
+
+**뷰 템플릿 기본 경로**
+
+`/src/main/resources/templates`
+
+#### String을 반환하는 경우
+`@ResponseBody`가 없으면, `response/hello`로 뷰 리졸버가 실행되어서 뷰를 찾고, 렌더링 한다.
+
+`@ResponseBody`가 있으면, 뷰 리졸버 x.
+
+HTTP 메시지 바디에 직접 `response/hello` 라는 문자를 입력한다.
+
+#### Thymeleaf 스프링 부트 설정
+Thymeleaf를 사용하려면 `build.gradle`에 아래 한 줄을 추가 해야 한다.
+
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+
+<br/>
+
+뷰 템플릿을 찾는 기본 경로 설정은 아래와 같다.
+
+<b><u>(기본 경로에서 변경이 필요할 경우에만 설정하면 됨.)</u></b>
+
+`application.properties`
+
+    spring.thymeleaf.prefix=classpath:/templates/
+    spring.thymeleaf.suffix=.html
+
+---
+### HTTP 응답 - HTTP API, 메시지 바디에 직접 입력
+HTTP API를 제공하는 경우, HTTP 바디에 JSON데이터를 직접 입력해서 보낸다.
+
+#### HttpServletResponse 사용
+`response.getWriter().write("ok");`
+
+#### HttpEntity, ResponseEntity
+`HttpEntity`
+- `return new HttpEntity<>(messageBody, responseHeaders);`
+
+`ResponsEntity`
+- `return new ResponseEntity<>(messageBody, HttpStatus.OK);`
+
+ResponseEntity는 HttpEntity에 HttpStatus를 포함시켜 전달할 수 있다.
+
+#### @ResponseBody
+`ResponseEntity`와 같은 방식으로 동작한다.
+- return "ok" : Http 응답 message body에 데이터가 직접 전달된다.
+
+#### @ResponseBody, @ResponseStatus
+메소드 스코프에 `@ResponseStatus`를 붙일 수 있다.
+```java
+@ResponseStatus(HttpStatus.OK)
+@ResponseBody
+@GetMapping("/response-body-json-v2")
+public HelloData responseBodyJsonV2() {
+    HelloData helloData = new HelloData("userA", 20);
+    return helloData;
+}
+```
+조건에 따라 응답코드를 변경하고 싶다면, `ResponseEntity`를 사용하면 된다.
+
+#### @RestController
+    @RestController = @Controller + @ResponseBody
+
+클래스 전체가 응답을 body에 직접 전달한다면 클래스 레벨에 `@Controller` 대신 `@RestController`를 사용하면 된다.
+
+---
+### HTTP 메시지 컨버터
+스프링MVC는 다음의 경우에 HTTP 메시지 컨버터를 적용한다.
+- HTTP 요청 : `@RequestBody`, `HttpEntity(RequestEntity)`
+- HTTP 응답 : `@ResponseBody`, `HttpEntity(ResponseEntity)`
+
+#### 스프링부트 기본 메시지 컨버터
+
+    0 = ByteArrayHttpMessageConverter
+    1 = StringHttpMessageConverter
+    2 = MappingJackson2HttpMessageConverter
+
+스프링부트는 다양한 메시지 컨버터를 제공한다. `대상 클래스의 타입과 미디어 타입`을 체크해서 사용여부를 결정한다.
+
+조건에 부합하지 않을 경우 다음 컨버터로 넘어간다.
+
+- `ByteArrayHttpMessageConverter` : `byte[]` 데이터를 처리한다.
+    - 클래스 타입 : `byte[]`, 미디어 타입 : `*/*`
+- `StringHttpMessageConverter` : `String` 타입으로 데이터를 처리한다.
+    - 클래스 타입 : `String`, 미디어 타입 : `*/*`
+- `MappingJackson2HttpMessageConverter` : `JSON` 타입으로 데이터를 처리한다.
+    - 클래스 타입 : 객체 or `HashMap`, 미디어 타입 : `application/json`
+
+#### HTTP 요청 데이터 읽기
+- HTTP 요청이 들어오고 컨트롤러에서 `@RequestBody`, `HttpEntity` 파라미터를 사용한다.
+- MessageConverter에서 읽기 가능 여부를 위해 `canRead()`를 호출
+- 만족하면 `read()` 호출, 만족하지 않으면 다음 converter로 넘어감.
+
+#### HTTP 응답 데이터 생성
+- 컨트롤러에서 `@ResponseBody`, `HttpEntity`로 리턴한다.
+- MessageConverter가 메시지를 쓸 수 있는지 확인하기 위해 `canWrite()`를 호출
+- `canWrite()`를 만족하면 `write()`를 호출하여 HTTP 응답 메시지 바디에 데이터를 작성한다.
+
+
+## Section 7. 스프링 MVC - 웹 페이지 만들기
+
+### PRG Post/Redirect/Get
+**[문제]**
+상품 등록을 완료하고 웹 브라우저의 새로고침 버튼을 누르면 상품이 계속 중복 등록된다.
+
+**[해결]**
+<br/>
+
+상품 등록 완료 --X--> 뷰 템플릿
+
+상품 등록 완료 -----> redirect:상품 상세 화면
+
+#### RedirectAttributes
+상품 저장이 완료되었는지 확신이 들지 않는다.
+
+따라서, 저장이 잘 되었을 때는 "저장되었습니다" 라는 메시지를 보여달라는 요구사항이 추가됐다고 가정해보자.
+
+```java
+@PostMapping("/add")
+public String addItem(Item item, RedirectAttributes redirectAttributes) {
+    Item savedItem = itemRepository.save(item);
+    redirectAttributes.addAttribute("itemId", savedItem.getId());
+    redirectAttributes.addAttribute("status", true);
+    return "redirect:/basic/items/{itemId}";
+}
+```
+리다이렉트 시, 간단하게 `status=true`를 추가해보자. 그리고 뷰 템플릿에서 이 값이 있으면, `저장되었습니다.` 라는 메시지를 출력해보자.
+
+RedirectAttributes를 사용하면 `URL 인코딩도 해주고, pathVariables, 쿼리 파라미터까지` 처리해준다.
+
