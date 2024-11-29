@@ -3,26 +3,29 @@ package hellojpa;
 import jakarta.persistence.*;
 
 @Entity
+@SequenceGenerator(
+        name = "MEMBER_SEQ_GENERATOR",
+        sequenceName = "MEMBER_SEQ", // 매핑할 데이터베이스 시퀀스 이름
+        initialValue = 1, allocationSize = 50
+)
 public class Member {
 
     @Id
-    // GeneratedValue
-    // MySQL 같은 경우는 IDENTITY
-    // Oracle 같은 경우는 SEQUENCE
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private String id;
+    @GeneratedValue(strategy = GenerationType.SEQUENCE,
+                    generator = "MEMBER_SEQ_GENERATOR")
+    private Long id;
 
-    @Column(name = "name")
+    @Column(name = "name", nullable = false)
     private String username;
 
     public Member() {
     }
 
-    public String getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
