@@ -5,6 +5,8 @@ import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.EntityTransaction;
 import jakarta.persistence.Persistence;
 
+import java.util.List;
+
 public class JpaMain {
 
     public static void main(String[] args) {
@@ -17,27 +19,27 @@ public class JpaMain {
         tx.begin();
 
         try {
-            // 영속
-            Member member1 = new Member();
-            member1.setUsername("A");
+            // 저장
+            Team team = new Team();
+            team.setName("TeamA");
+            em.persist(team);
 
-            Member member2 = new Member();
-            member2.setUsername("B");
+            Member member = new Member();
+            member.setUsername("member1");
+            member.setTeam(team);
+            em.persist(member);
 
-            Member member3 = new Member();
-            member3.setUsername("C");
+            em.flush(); // 영속된 객체들을 DB로 날림.
+            em.clear(); // 1차 캐시 초기화
 
-            System.out.println("==============");
+            Member findMember = em.find(Member.class, member.getId()); // DB에서 직접 불러옴.
+            List<Member> members = findMember.getTeam().getMembers();
 
-            em.persist(member1);
-            em.persist(member2);
-            em.persist(member3);
+            for (Member m : members) {
+                System.out.println("m = " + m.getUsername());
+            }
 
-            System.out.println("member1.id = " + member1.getId());
-            System.out.println("member2.id = " + member2.getId());
-            System.out.println("member3.id = " + member3.getId());
 
-            System.out.println("==============");
             tx.commit();
         } catch (Exception e) {
             tx.rollback();
