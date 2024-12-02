@@ -19,26 +19,17 @@ public class JpaMain {
         tx.begin();
 
         try {
-            // 저장
-            Team team = new Team();
-            team.setName("TeamA");
-            em.persist(team);
 
             Member member = new Member();
             member.setUsername("member1");
-            member.setTeam(team);
+
             em.persist(member);
 
-            em.flush(); // 영속된 객체들을 DB로 날림.
-            em.clear(); // 1차 캐시 초기화
+            Team team = new Team();
+            team.setName("teamA");
+            team.getMembers().add(member);
 
-            Member findMember = em.find(Member.class, member.getId()); // DB에서 직접 불러옴.
-            List<Member> members = findMember.getTeam().getMembers();
-
-            for (Member m : members) {
-                System.out.println("m = " + m.getUsername());
-            }
-
+            em.persist(team);
 
             tx.commit();
         } catch (Exception e) {
