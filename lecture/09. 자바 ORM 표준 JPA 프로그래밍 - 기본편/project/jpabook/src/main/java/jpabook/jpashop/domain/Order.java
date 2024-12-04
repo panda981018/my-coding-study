@@ -14,12 +14,13 @@ public class Order {
     @Column(name = "ORDER_ID")
     private Long id;
 
-    // 객체지향스럽지 못하다 = RDB에 맞춘 설계(RDB가 메인이 되는? 그런 느낌)
-//    @Column(name = "MEMBER_ID")
-//    private Long memberId;
     @ManyToOne
     @JoinColumn(name = "MEMBER_ID")
     private Member member;
+
+    @OneToOne
+    @JoinColumn(name = "DELIVERY_ID")
+    private Delivery delivery;
 
     @OneToMany(mappedBy = "order")
     private List<OrderItem> orderItems = new ArrayList<>();
