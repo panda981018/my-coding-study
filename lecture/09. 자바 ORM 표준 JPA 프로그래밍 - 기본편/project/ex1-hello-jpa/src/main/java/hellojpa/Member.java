@@ -2,8 +2,6 @@ package hellojpa;
 
 import jakarta.persistence.*;
 
-import java.util.List;
-
 @Entity
 public class Member extends BaseEntity {
 
@@ -19,13 +17,6 @@ public class Member extends BaseEntity {
     @JoinColumn(name = "TEAM_ID", insertable = false, updatable = false)
     // insertable, updatable을 false로 해두면 읽기 전용이 됨.(read-only)
     private Team team;
-
-    @OneToOne
-    @JoinColumn(name = "LOCKER_ID")
-    private Locker locker;
-
-    @OneToMany(mappedBy = "member")
-    private List<MemberProduct> memberProducts;
 
     public Long getId() {
         return id;
@@ -43,4 +34,11 @@ public class Member extends BaseEntity {
         this.username = username;
     }
 
+    public Team getTeam() {
+        return team;
+    }
+
+    public void setTeam(Team team) {
+        this.team = team;
+    }
 }
