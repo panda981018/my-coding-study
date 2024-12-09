@@ -5,9 +5,6 @@ import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.EntityTransaction;
 import jakarta.persistence.Persistence;
 import jpabook.jpashop.domain.Book;
-import jpabook.jpashop.domain.Item;
-import jpabook.jpashop.domain.Order;
-import jpabook.jpashop.domain.OrderItem;
 
 public class JpaMain {
 
