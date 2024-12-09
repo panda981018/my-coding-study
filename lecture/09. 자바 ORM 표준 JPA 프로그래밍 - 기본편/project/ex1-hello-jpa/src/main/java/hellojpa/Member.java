@@ -13,9 +13,8 @@ public class Member extends BaseEntity {
     @Column(name = "USERNAME")
     private String username;
 
-    @ManyToOne
-    @JoinColumn(name = "TEAM_ID", insertable = false, updatable = false)
-    // insertable, updatable을 false로 해두면 읽기 전용이 됨.(read-only)
+    @ManyToOne(fetch = FetchType.LAZY) // LAZY = 프록시
+    @JoinColumn
     private Team team;
 
     public Long getId() {

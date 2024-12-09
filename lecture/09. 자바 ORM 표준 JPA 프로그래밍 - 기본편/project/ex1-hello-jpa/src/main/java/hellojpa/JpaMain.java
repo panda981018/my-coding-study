@@ -4,6 +4,9 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.EntityTransaction;
 import jakarta.persistence.Persistence;
+import org.hibernate.Hibernate;
+
+import java.util.List;
 
 public class JpaMain {
 
@@ -17,26 +20,25 @@ public class JpaMain {
         tx.begin();
 
         try {
-            Member member1  =new Member();
-            member1.setUsername("member1");
-            em.persist(member1);
+            Child child1 = new Child();
+            Child child2 = new Child();
 
-            Member member2  =new Member();
-            member2.setUsername("member2");
-            em.persist(member2);
+            Parent parent = new Parent();
+            parent.addChild(child1);
+            parent.addChild(child2);
+
+            em.persist(parent);
 
             em.flush();
             em.clear();
 
-            Member m1 = em.find(Member.class, member1.getId());
-            Member m2 = em.getReference(Member.class, member2.getId());
-
-            logic(m1, m2);
+            Parent findParent = em.find(Parent.class, parent.getId());
+            findParent.getChildList().remove(0);
 
             tx.commit();
         } catch (Exception e) {
             tx.rollback();
-            throw new RuntimeException(e);
+            e.printStackTrace();
         } finally {
             em.close();
         }
