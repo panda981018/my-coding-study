@@ -14,17 +14,22 @@ public class JpaMain {
         tx.begin();
 
         try {
+            Team team = new Team();
+            team.setName("teamA");
+            em.persist(team);
 
             Member member = new Member();
-            member.setUsername("member1");
-            member.setAge(20);
+            member.setUsername("teamA");
+            member.setAge(10);
+
+            member.setTeam(team);
             em.persist(member);
 
-            Member findMember = em.createQuery("select m from Member m where m.username = :username", Member.class)
-                                    .setParameter("username", "member1")
-                                    .getSingleResult();
-            System.out.println("findMember = " + findMember.getUsername());
+            em.flush();
+            em.clear();
 
+            String query = "select m.username, 'HELLO', true from Member m";
+            em.createQuery(query).getResultList();
 
             tx.commit();
         } catch (Exception e) {
